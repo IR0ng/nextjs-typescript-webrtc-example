@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
+const socket = io('http://localhost:80', { withCredentials: true });
+
 export default function Home() {
   let pc: RTCPeerConnection 
-  const socket = io('http://localhost:80');
-
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
 
   useEffect(() => {
@@ -15,6 +15,7 @@ export default function Home() {
       })
       setLocalStream(localStream)
     })()
+    socket.on("broadcast", () => console.log('test'))
   }, [])
 
   const joinRoom = () => {
@@ -32,6 +33,7 @@ export default function Home() {
         }],
      };
     pc = new RTCPeerConnection(configuration);
+    
     localStream!.getTracks().forEach(track => pc.addTrack(track, localStream!));
     pc.onicecandidate = ({ candidate }) => {
       if (!candidate) return
